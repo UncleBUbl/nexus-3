@@ -1,6 +1,6 @@
 
-import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Loader2, Workflow, Check, Play, AlertCircle, X, Clock, Brain, UserCheck, Layout, Network, Sparkles, FileText, CheckCircle2 } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { ArrowLeft, Loader2, Workflow, Check, Play, AlertCircle, X, Clock, Brain, UserCheck, Layout, Network, Sparkles, FileText, CheckCircle2, MessageSquare, Send, Database } from 'lucide-react';
 import { useOrchestrator } from '../hooks/useOrchestrator';
 import { Agent, AgentStatus } from '../types';
 
@@ -35,6 +35,8 @@ const RichTextRenderer: React.FC<{ text: string, className?: string }> = ({ text
 const AgentMode: React.FC<Props> = ({ onBack }) => {
   const [task, setTask] = useState('');
   const [viewMode, setViewMode] = useState<'kanban' | 'graph'>('kanban');
+  const [chatInput, setChatInput] = useState('');
+  const chatBottomRef = useRef<HTMLDivElement>(null);
 
   const { 
     agents, 
@@ -44,15 +46,32 @@ const AgentMode: React.FC<Props> = ({ onBack }) => {
     error,
     finalReport,
     isSynthesizing,
+    chatHistory,
+    isChatting,
+    missionHistory,
     decompose, 
     startExecution,
     selectAgent,
-    updateAgentStatus
+    updateAgentStatus,
+    askSwarm
   } = useOrchestrator();
 
   const handleDecompose = () => {
     decompose(task);
   };
+
+  const handleAskSwarm = () => {
+    if (chatInput.trim()) {
+      askSwarm(chatInput);
+      setChatInput('');
+    }
+  };
+
+  useEffect(() => {
+    if (chatBottomRef.current) {
+      chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatHistory, isChatting]);
 
   const getStatusColor = (status: AgentStatus) => {
     switch (status) {
@@ -125,6 +144,12 @@ const AgentMode: React.FC<Props> = ({ onBack }) => {
           <div className="flex-1 space-y-4">
             <div className="flex justify-between items-end">
                <label className="text-xs font-bold text-nexus-blue uppercase tracking-widest">Mission Directive</label>
+               {missionHistory.length > 0 && (
+                 <div className="flex items-center space-x-1 text-xs text-nexus-blue bg-blue-900/20 px-2 py-1 rounded border border-nexus-blue/30 animate-in fade-in">
+                   <Database size={12} />
+                   <span>SWARM MEMORY: {missionHistory.length} MISSIONS STORED</span>
+                 </div>
+               )}
             </div>
             
             <textarea
@@ -195,7 +220,7 @@ const AgentMode: React.FC<Props> = ({ onBack }) => {
 
       {/* 3. Main Content Area */}
       {agents.length > 0 && (
-        <div className="flex-1 min-h-[500px] space-y-8">
+        <div className="flex-1 space-y-8 pb-20">
           {viewMode === 'kanban' ? (
             <div className="overflow-x-auto pb-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-w-[900px]">
@@ -266,10 +291,10 @@ const AgentMode: React.FC<Props> = ({ onBack }) => {
 
           {/* FINAL SYNTHESIS REPORT */}
           {(isSynthesizing || finalReport) && (
-            <div className="animate-in slide-in-from-bottom-4 duration-700">
-               <div className="relative bg-nexus-panel border-2 border-nexus-blue/50 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(0,136,255,0.15)]">
+            <div className="animate-in slide-in-from-bottom-4 duration-700 space-y-6">
+               <div className="relative bg-nexus-panel border-2 border-nexus-blue/50 rounded-xl shadow-[0_0_30px_rgba(0,136,255,0.15)] flex flex-col">
                   {/* Header */}
-                  <div className="bg-nexus-blue/10 border-b border-nexus-blue/20 p-4 flex items-center justify-between">
+                  <div className="bg-nexus-blue/10 border-b border-nexus-blue/20 p-4 flex items-center justify-between rounded-t-xl">
                      <div className="flex items-center space-x-3">
                         <FileText className="text-nexus-blue" />
                         <h3 className="text-xl font-bold text-white tracking-widest">MISSION DEBRIEF</h3>
@@ -287,8 +312,8 @@ const AgentMode: React.FC<Props> = ({ onBack }) => {
                      )}
                   </div>
                   
-                  {/* Content */}
-                  <div className="p-8 min-h-[200px] bg-black/50">
+                  {/* Content - auto expanding */}
+                  <div className="p-8 bg-black/50 rounded-b-xl">
                      {isSynthesizing ? (
                         <div className="space-y-3 opacity-50">
                            <div className="h-4 bg-gray-800 rounded w-3/4 animate-pulse"></div>
@@ -300,6 +325,63 @@ const AgentMode: React.FC<Props> = ({ onBack }) => {
                      )}
                   </div>
                </div>
+
+               {/* SWARM HISTORY / CHAT */}
+               {!isSynthesizing && finalReport && (
+                 <div className="bg-nexus-panel border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-2">
+                    <div className="p-4 bg-white/5 border-b border-white/5 flex items-center space-x-2">
+                       <MessageSquare size={18} className="text-nexus-blue" />
+                       <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Swarm Memory Access</span>
+                    </div>
+
+                    <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 bg-black/30">
+                        {chatHistory.length === 0 && (
+                          <div className="text-center text-gray-600 text-sm font-mono py-4 italic">
+                             Swarm memory active. Ask follow-up questions about the mission.
+                          </div>
+                        )}
+                        {chatHistory.map((msg, i) => (
+                           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-[80%] rounded-lg p-3 text-sm leading-relaxed ${
+                                 msg.role === 'user' 
+                                 ? 'bg-nexus-blue/20 text-blue-100 border border-nexus-blue/30 rounded-br-none' 
+                                 : 'bg-white/10 text-gray-200 border border-white/10 rounded-bl-none'
+                              }`}>
+                                 <RichTextRenderer text={msg.content} />
+                              </div>
+                           </div>
+                        ))}
+                        {isChatting && (
+                           <div className="flex justify-start">
+                              <div className="bg-white/5 rounded-lg p-3 rounded-bl-none flex items-center space-x-2">
+                                 <Loader2 size={14} className="animate-spin text-nexus-blue" />
+                                 <span className="text-xs text-gray-400 font-mono">Accessing Swarm Memory...</span>
+                              </div>
+                           </div>
+                        )}
+                        <div ref={chatBottomRef} />
+                    </div>
+
+                    <div className="p-4 bg-white/5 border-t border-white/5 flex space-x-2">
+                       <input 
+                          type="text" 
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAskSwarm()}
+                          placeholder="Ask the swarm about the results..."
+                          className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-nexus-blue/50 focus:ring-1 focus:ring-nexus-blue/50"
+                          disabled={isChatting}
+                       />
+                       <button 
+                          onClick={handleAskSwarm}
+                          disabled={isChatting || !chatInput.trim()}
+                          className="bg-nexus-blue hover:bg-blue-400 text-black p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                       >
+                          <Send size={18} />
+                       </button>
+                    </div>
+                 </div>
+               )}
             </div>
           )}
 

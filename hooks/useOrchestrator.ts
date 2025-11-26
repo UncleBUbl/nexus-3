@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { orchestrateAgents, generateAgentResult, synthesizeSwarmResults } from '../services/geminiService';
-import { Agent, AgentStatus } from '../types';
+import { orchestrateAgents, generateAgentResult, synthesizeSwarmResults, querySwarmMemory } from '../services/geminiService';
+import { Agent, AgentStatus, ChatMessage, MissionArchive } from '../types';
 
 export const useOrchestrator = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -14,6 +14,13 @@ export const useOrchestrator = () => {
   // Synthesis State
   const [finalReport, setFinalReport] = useState('');
   const [isSynthesizing, setIsSynthesizing] = useState(false);
+
+  // History/Chat State
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [isChatting, setIsChatting] = useState(false);
+
+  // Long-term Mission Memory (Session based)
+  const [missionHistory, setMissionHistory] = useState<MissionArchive[]>([]);
 
   // Derived selected agent
   const selectedAgent = agents.find(a => a.id === selectedAgentId) || null;
@@ -94,6 +101,11 @@ export const useOrchestrator = () => {
         synthesizeSwarmResults(taskContext, agents)
             .then(report => {
                 setFinalReport(report);
+                // Archive this mission to memory
+                setMissionHistory(prev => [
+                  ...prev, 
+                  { task: taskContext, report, timestamp: Date.now() }
+                ]);
             })
             .catch(err => {
                 console.error("Synthesis failed", err);
@@ -112,14 +124,16 @@ export const useOrchestrator = () => {
     setLoading(true);
     setError('');
     setAgents([]);
-    setFinalReport(''); // Clear previous report
+    setFinalReport('');
+    setChatHistory([]); // Clear chat history
     setIsSynthesizing(false);
     setExecutionStarted(false);
     setSelectedAgentId(null);
     setTaskContext(userTask);
 
     try {
-      const plans = await orchestrateAgents(userTask);
+      // Pass mission history to allow the swarm to learn from past tasks
+      const plans = await orchestrateAgents(userTask, missionHistory);
       
       const newAgents: Agent[] = plans.map(p => ({
         id: p.id!,
@@ -150,6 +164,24 @@ export const useOrchestrator = () => {
     roots.forEach(a => runAgentSimulation(a.id, taskContext));
   };
 
+  const askSwarm = async (question: string) => {
+    if (!question.trim()) return;
+
+    const newMessage: ChatMessage = { role: 'user', content: question, timestamp: Date.now() };
+    setChatHistory(prev => [...prev, newMessage]);
+    setIsChatting(true);
+
+    try {
+      const answer = await querySwarmMemory(taskContext, agents, finalReport, chatHistory, question);
+      setChatHistory(prev => [...prev, { role: 'assistant', content: answer, timestamp: Date.now() }]);
+    } catch (err: any) {
+      console.error("Swarm Chat Error", err);
+      setChatHistory(prev => [...prev, { role: 'assistant', content: "Error accessing swarm memory.", timestamp: Date.now() }]);
+    } finally {
+      setIsChatting(false);
+    }
+  };
+
   return {
     agents,
     selectedAgent,
@@ -158,9 +190,13 @@ export const useOrchestrator = () => {
     executionStarted,
     finalReport,
     isSynthesizing,
+    chatHistory,
+    isChatting,
+    missionHistory,
     decompose,
     selectAgent,
     updateAgentStatus,
-    startExecution
+    startExecution,
+    askSwarm
   };
 };

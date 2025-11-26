@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, Schema } from "@google/genai";
-import { DeepThinkResult, VibeLevel, VibeAnalysis, Agent } from "../types";
+import { DeepThinkResult, VibeLevel, VibeAnalysis, Agent, ChatMessage, MissionArchive } from "../types";
 
 // Helper to get a fresh client instance with the current key
 const getClient = () => {
@@ -87,15 +87,26 @@ const agentPlanSchema: Schema = {
   required: ["agents"]
 };
 
-export const orchestrateAgents = async (goal: string): Promise<Partial<Agent>[]> => {
+export const orchestrateAgents = async (goal: string, pastMissions: MissionArchive[] = []): Promise<Partial<Agent>[]> => {
   const ai = getClient();
+
+  // Construct context from previous missions
+  const memoryContext = pastMissions.length > 0
+    ? `
+SWARM MEMORY (PREVIOUS MISSIONS):
+${pastMissions.map((m, i) => `MISSION ${i+1}: "${m.task}"\nRESULT SUMMARY: ${m.report.substring(0, 300)}...`).join('\n\n')}
+
+INSTRUCTION: Use the Swarm Memory above. If the new goal relates to previous work, assign agents to retrieve that data instead of re-doing work. Optimize the plan based on learned context.
+`
+    : "";
 
   // Using Gemini 3 Pro for complex task decomposition
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-preview',
     contents: `Goal: ${goal}`,
     config: {
-      systemInstruction: "You are 'The Swarm', an autonomous task orchestrator. Break the user's goal into 3-5 distinct sub-agents. Assign IDs (e.g., 'A1', 'A2'). If a task strictly requires output from another, set a dependencyId.",
+      systemInstruction: `You are 'The Swarm', an autonomous task orchestrator. Break the user's goal into 3-5 distinct sub-agents. Assign IDs (e.g., 'A1', 'A2'). If a task strictly requires output from another, set a dependencyId.
+      ${memoryContext}`,
       responseMimeType: "application/json",
       responseSchema: agentPlanSchema
     }
@@ -148,6 +159,40 @@ export const synthesizeSwarmResults = async (goal: string, agents: Agent[]): Pro
   });
 
   return response.text || "Mission Synthesis Failed.";
+};
+
+// Query the swarm memory for follow-up questions
+export const querySwarmMemory = async (
+  goal: string, 
+  agents: Agent[], 
+  finalReport: string, 
+  chatHistory: ChatMessage[], 
+  question: string
+): Promise<string> => {
+  const ai = getClient();
+  
+  const agentData = agents.map(a => `[AGENT: ${a.name}]: ${a.result}`).join('\n');
+  const historyContext = chatHistory.map(msg => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n');
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview',
+    contents: `
+      CONTEXT:
+      Original Goal: ${goal}
+      Agent Data: \n${agentData}
+      Final Report: \n${finalReport}
+      
+      CHAT HISTORY:
+      ${historyContext}
+      
+      USER QUESTION: ${question}
+      
+      You are the interface to the Swarm Intelligence. Answer the user's follow-up question based strictly on the context provided above.
+      Be helpful, concise, and maintain the futuristic persona.
+    `
+  });
+
+  return response.text || "Accessing Swarm Memory... No data found.";
 };
 
 // --- Vibe Check Service ---

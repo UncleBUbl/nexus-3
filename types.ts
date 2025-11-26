@@ -37,6 +37,12 @@ export interface Agent {
   dependencyId?: string;
 }
 
+export interface MissionArchive {
+  task: string;
+  report: string;
+  timestamp: number;
+}
+
 export enum VibeLevel {
   LITERAL = 1,
   CONTEXTUAL = 2,
@@ -53,4 +59,10 @@ export interface VibeAnalysis {
     clarity: number;
   };
   suggestedAction: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
 }
