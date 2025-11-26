@@ -1,0 +1,7 @@
+{
+  "name": "Nexus 3: AI Capabilities Showcase",
+  "description": "A futuristic modular AI platform demonstrating Deep Reasoning, Autonomous Agents, and Multimodal Perception.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
