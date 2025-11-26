@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { orchestrateAgents, generateAgentResult, synthesizeSwarmResults, querySwarmMemory } from '../services/geminiService';
 import { Agent, AgentStatus, ChatMessage, MissionArchive } from '../types';
 
-export const useOrchestrator = () => {
+export const useOrchestrator = (userId?: string) => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,8 +19,25 @@ export const useOrchestrator = () => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [isChatting, setIsChatting] = useState(false);
 
-  // Long-term Mission Memory (Session based)
-  const [missionHistory, setMissionHistory] = useState<MissionArchive[]>([]);
+  // Long-term Mission Memory (Persistent)
+  const [missionHistory, setMissionHistory] = useState<MissionArchive[]>(() => {
+    try {
+      const saved = localStorage.getItem('nexus_mission_history');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error("Failed to load history", e);
+      return [];
+    }
+  });
+
+  // Persist history changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('nexus_mission_history', JSON.stringify(missionHistory));
+    } catch (e) {
+      console.error("Failed to save history", e);
+    }
+  }, [missionHistory]);
 
   // Derived selected agent
   const selectedAgent = agents.find(a => a.id === selectedAgentId) || null;
@@ -33,6 +50,23 @@ export const useOrchestrator = () => {
     setAgents(prev => prev.map(a => 
       a.id === agentId ? { ...a, status: newStatus, progress } : a
     ));
+  };
+
+  const loadMission = (mission: MissionArchive) => {
+    setTaskContext(mission.task);
+    setFinalReport(mission.report);
+    setChatHistory([]); // Start fresh chat for loaded mission
+    setAgents([]); // Clear agents as they aren't stored in archive
+    setExecutionStarted(false); // Reset execution state
+  };
+
+  const deleteMission = (mission: MissionArchive) => {
+    setMissionHistory(prev => prev.filter(m => m.timestamp !== mission.timestamp));
+    // If currently viewing this mission, maybe clear it? 
+    if (taskContext === mission.task && finalReport === mission.report) {
+      setFinalReport('');
+      setTaskContext('');
+    }
   };
 
   // Execution Logic
@@ -197,6 +231,8 @@ export const useOrchestrator = () => {
     selectAgent,
     updateAgentStatus,
     startExecution,
-    askSwarm
+    askSwarm,
+    loadMission,
+    deleteMission
   };
 };

@@ -1,9 +1,30 @@
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "jspdf": "https://aistudiocdn.com/jspdf@^2.5.1"
+  }
+}
+</script>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nexus 3</title>
+    <script>
+      // Polyfill process for browser environment to prevent SDK crashes
+      window.process = {
+        env: {
+          NODE_ENV: 'development'
+        }
+      };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -15,57 +36,28 @@
                 cyan: '#00d9ff',
                 blue: '#0088ff',
                 purple: '#9d4edd',
+                orange: '#ff5f1f',
+                green: '#00ff9d',
+                crimson: '#dc2626',
+                gold: '#facc15',
+                pink: '#ec4899',
+                indigo: '#6366f1',
+                slate: '#94a3b8',
                 dark: '#0a0a0a',
                 panel: '#111111'
               }
             },
             fontFamily: {
               mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
-              sans: ['ui-sans-serif', 'system-ui', '-apple-system', "Segoe UI", 'Roboto', "Helvetica Neue", 'Arial', 'sans-serif']
-            },
-            boxShadow: {
-              'neon-cyan': '0 0 5px #00d9ff, 0 0 20px rgba(0, 217, 255, 0.3)',
-              'neon-blue': '0 0 5px #0088ff, 0 0 20px rgba(0, 136, 255, 0.3)',
-              'neon-purple': '0 0 5px #9d4edd, 0 0 20px rgba(157, 78, 221, 0.3)',
+              sans: ['ui-sans-serif', 'system-ui', '-apple-system', "Segoe UI", 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif']
             }
           }
         }
       }
     </script>
-    <style>
-      body {
-        background-color: #050505;
-        color: #e0e0e0;
-      }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #0a0a0a; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #333; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #00d9ff; 
-      }
-    </style>
-  <script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0"
-  }
-}
-</script>
-</head>
+  </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
