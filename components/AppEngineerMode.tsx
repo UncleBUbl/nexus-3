@@ -71,13 +71,13 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
       
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 md:space-x-4">
           <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-full transition-colors text-nexus-indigo">
             <ArrowLeft size={24} />
           </button>
-          <div className="flex items-center space-x-3">
-            <Cpu className="text-nexus-indigo" size={28} />
-            <h2 className="text-2xl md:text-3xl font-bold tracking-wider text-nexus-indigo">APP ENGINEER</h2>
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <Cpu className="text-nexus-indigo" size={24} />
+            <h2 className="text-xl md:text-3xl font-bold tracking-wider text-nexus-indigo">APP ENGINEER</h2>
           </div>
           <span className="bg-nexus-indigo/10 text-nexus-indigo text-xs font-mono px-2 py-1 rounded border border-nexus-indigo/20 hidden md:inline">
               AUTONOMOUS CTO
@@ -100,13 +100,13 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
         {/* Left Column: Input & Chat */}
         <div className="lg:w-1/3 flex flex-col gap-4">
            {/* Idea Input */}
-           <div className="bg-nexus-panel border border-white/10 rounded-xl p-6 shadow-lg shrink-0">
+           <div className="bg-nexus-panel border border-white/10 rounded-xl p-4 md:p-6 shadow-lg shrink-0">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">Application Concept</label>
               <div className="flex flex-col gap-3">
                  <textarea
                     value={idea}
                     onChange={(e) => setIdea(e.target.value)}
-                    placeholder="Describe your app idea (e.g., 'Uber for Dog Walkers', 'AI Recipe Generator')..."
+                    placeholder="Describe your app idea (e.g., 'Uber for Dog Walkers')..."
                     className="w-full bg-black/50 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-nexus-indigo text-sm font-sans resize-none h-24"
                     disabled={loading}
                  />
@@ -127,7 +127,7 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
 
            {/* CTO Chat Interface */}
            {blueprint && (
-             <div className="flex-1 bg-nexus-panel border border-nexus-indigo/30 rounded-xl overflow-hidden flex flex-col min-h-[400px]">
+             <div className="flex-1 bg-nexus-panel border border-nexus-indigo/30 rounded-xl overflow-hidden flex flex-col min-h-[350px] md:min-h-[400px]">
                 <div className="p-3 bg-white/5 border-b border-white/10 flex items-center gap-2">
                    <MessageSquare size={16} className="text-nexus-indigo" />
                    <span className="text-xs font-bold tracking-wider text-white">CONSULT CTO</span>
@@ -190,12 +190,12 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
               <div className="flex-1 bg-nexus-panel border border-nexus-indigo/30 rounded-xl overflow-hidden shadow-[0_0_30px_rgba(99,102,241,0.15)] flex flex-col animate-in slide-in-from-bottom-4 duration-700 relative">
                  
                  {/* Blueprint Header */}
-                 <div className="bg-black/40 p-6 border-b border-white/10 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                 <div className="bg-black/40 p-4 md:p-6 border-b border-white/10 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                     <div>
                        <h1 className="text-2xl font-bold text-white tracking-tight">{blueprint.appName}</h1>
                        <p className="text-nexus-indigo font-mono text-sm mt-1">{blueprint.tagline}</p>
                     </div>
-                    <div className="flex space-x-4 text-[10px] md:text-xs font-mono text-gray-500 bg-white/5 p-2 rounded-lg">
+                    <div className="flex space-x-4 text-[10px] md:text-xs font-mono text-gray-500 bg-white/5 p-2 rounded-lg overflow-x-auto whitespace-nowrap">
                        <div>
                           <span className="block text-nexus-indigo font-bold">STACK</span>
                           {blueprint.backend?.techStack}
@@ -217,7 +217,7 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
                  </div>
 
                  {/* Content Viewer */}
-                 <div className="p-6 md:p-8 overflow-y-auto flex-1 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] bg-fixed relative">
+                 <div className="p-4 md:p-8 overflow-y-auto flex-1 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] bg-fixed relative">
                     <div className="absolute inset-0 bg-nexus-black/90 pointer-events-none z-0"></div>
                     <div className="relative z-10">
                        
@@ -252,9 +252,9 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="md:col-span-1">
                                    <h3 className="text-gray-500 font-bold uppercase tracking-widest text-xs mb-4">Component Tree</h3>
-                                   <div className="bg-nexus-panel border border-white/10 rounded-lg p-4 font-mono text-xs text-gray-300 space-y-3">
+                                   <div className="bg-nexus-panel border border-white/10 rounded-lg p-4 font-mono text-xs text-gray-300 space-y-3 overflow-x-auto">
                                       {(blueprint.frontend.componentTree || []).map((comp, i) => (
-                                         <div key={i} className="flex items-center gap-2 pl-2 border-l border-nexus-indigo/20">
+                                         <div key={i} className="flex items-center gap-2 pl-2 border-l border-nexus-indigo/20 whitespace-nowrap">
                                             <Layers size={10} className="text-nexus-indigo" />
                                             {comp}
                                          </div>
@@ -275,7 +275,7 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
                                    {(blueprint.frontend.colorPalette || []).map((color, i) => (
                                       <div key={i} className="group flex flex-col items-center space-y-2 cursor-pointer">
                                          <div 
-                                            className="w-16 h-16 rounded-lg shadow-lg border border-white/10 group-hover:scale-110 transition-transform" 
+                                            className="w-12 h-12 md:w-16 md:h-16 rounded-lg shadow-lg border border-white/10 group-hover:scale-110 transition-transform" 
                                             style={{ backgroundColor: color }}
                                          ></div>
                                          <span className="text-[10px] font-mono text-gray-500 bg-black/50 px-2 py-1 rounded">{color}</span>
@@ -295,9 +295,9 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
                                          <Database size={14} className="text-nexus-indigo" />
                                          <span className="font-bold text-white text-sm tracking-wide">{table.table}</span>
                                       </div>
-                                      <div className="p-3 space-y-1">
+                                      <div className="p-3 space-y-1 overflow-x-auto">
                                          {(table.columns || []).map((col, j) => (
-                                            <div key={j} className="flex items-center justify-between text-xs font-mono text-gray-400 py-1 border-b border-white/5 last:border-0">
+                                            <div key={j} className="flex items-center justify-between text-xs font-mono text-gray-400 py-1 border-b border-white/5 last:border-0 whitespace-nowrap gap-4">
                                                <span>{col.split(' ')[0]}</span>
                                                <span className="text-nexus-indigo/70">{col.split(' ').slice(1).join(' ')}</span>
                                             </div>
@@ -339,7 +339,7 @@ const AppEngineerMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
       {/* History Sidebar */}
       {showHistory && (
          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={() => setShowHistory(false)}>
-            <div className="bg-nexus-panel border border-white/20 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+            <div className="bg-nexus-panel border border-white/20 rounded-xl w-[95%] max-w-lg shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                <div className="p-4 border-b border-white/10 flex justify-between items-center">
                   <h3 className="text-lg font-bold text-white tracking-wider flex items-center gap-2">
                      <History className="text-nexus-indigo" />
@@ -400,7 +400,7 @@ const StrategyCard: React.FC<{ title: string, content: string, icon: React.React
 const TabButton: React.FC<{ id: string, label: string, icon: React.ReactNode, active: string, set: (v: any) => void }> = ({ id, label, icon, active, set }) => (
    <button
       onClick={() => set(id)}
-      className={`flex items-center space-x-2 px-6 py-4 text-sm font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
+      className={`flex items-center space-x-2 px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm font-bold uppercase tracking-wider transition-colors whitespace-nowrap shrink-0 ${
          active === id 
          ? 'text-nexus-indigo bg-nexus-indigo/5 border-b-2 border-nexus-indigo' 
          : 'text-gray-500 hover:text-white'

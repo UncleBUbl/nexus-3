@@ -36,50 +36,50 @@ const HomeScreen: React.FC<Props> = ({ onSelectMode, onNavigateWithPrompt }) => 
     <div className="flex flex-col min-h-screen bg-black text-white relative overflow-x-hidden">
       
       {/* Background Ambience */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-nexus-cyan/5 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] md:w-[1000px] h-[400px] md:h-[600px] bg-nexus-cyan/5 rounded-full blur-[80px] md:blur-[150px] pointer-events-none"></div>
 
       {/* Main Content Container */}
-      <div className="z-10 w-full max-w-7xl mx-auto px-4 py-8 md:py-16 flex flex-col items-center">
+      <div className="z-10 w-full max-w-7xl mx-auto px-4 py-6 md:py-16 flex flex-col items-center">
         
         {/* Header / Logo */}
-        <div className="flex flex-col items-center mb-12 space-y-4">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-gradient-to-r from-nexus-cyan via-white to-nexus-blue bg-clip-text text-transparent">
+        <div className="flex flex-col items-center mb-8 md:mb-12 space-y-2 md:space-y-4">
+            <h1 className="text-4xl md:text-7xl font-bold tracking-tighter bg-gradient-to-r from-nexus-cyan via-white to-nexus-blue bg-clip-text text-transparent text-center">
                 NEXUS 3
             </h1>
-            <p className="text-gray-400 text-xs md:text-sm tracking-[0.3em] font-mono">
+            <p className="text-gray-400 text-[10px] md:text-sm tracking-[0.2em] md:tracking-[0.3em] font-mono text-center">
                 AI OPERATING SYSTEM
             </p>
         </div>
 
         {/* NEXUS OMNIBAR */}
-        <div className="w-full max-w-3xl mb-16 relative group">
+        <div className="w-full max-w-3xl mb-10 md:mb-16 relative group">
            <div className="absolute -inset-1 bg-gradient-to-r from-nexus-cyan via-nexus-blue to-nexus-purple rounded-xl opacity-20 group-hover:opacity-40 blur transition-opacity duration-500"></div>
            <form onSubmit={handleOmnibarSubmit} className="relative bg-[#0a0a0a] rounded-xl border border-white/10 shadow-2xl flex items-center">
-              <Search className="ml-6 text-gray-500" size={24} />
+              <Search className="ml-4 md:ml-6 text-gray-500 shrink-0" size={20} />
               <input 
                 type="text" 
                 value={omnibarInput}
                 onChange={(e) => setOmnibarInput(e.target.value)}
-                placeholder="What do you want to create or solve?"
-                className="w-full bg-transparent text-white text-lg md:text-xl p-6 focus:outline-none placeholder-gray-600 font-light"
+                placeholder="What do you want to create?"
+                className="w-full bg-transparent text-white text-base md:text-xl p-4 md:p-6 focus:outline-none placeholder-gray-600 font-light truncate"
               />
               <button 
                 type="submit"
                 disabled={!omnibarInput.trim() || isRouting}
-                className="mr-3 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-lg text-nexus-cyan font-bold transition-colors disabled:opacity-0"
+                className="mr-2 md:mr-3 px-4 md:px-6 py-2 md:py-3 bg-white/5 hover:bg-white/10 rounded-lg text-nexus-cyan font-bold transition-colors disabled:opacity-0 text-sm md:text-base"
               >
-                {isRouting ? <Loader2 className="animate-spin" /> : "GO"}
+                {isRouting ? <Loader2 className="animate-spin" size={18} /> : "GO"}
               </button>
            </form>
            {isRouting && (
-             <div className="absolute -bottom-8 left-0 right-0 text-center text-xs font-mono text-nexus-cyan animate-pulse">
-               ANALYZING INTENT & ROUTING...
+             <div className="absolute -bottom-6 md:-bottom-8 left-0 right-0 text-center text-[10px] md:text-xs font-mono text-nexus-cyan animate-pulse">
+               ANALYZING INTENT...
              </div>
            )}
         </div>
 
         {/* Categorized Grid */}
-        <div className="w-full space-y-12 pb-20">
+        <div className="w-full space-y-8 md:space-y-12 pb-20">
            
            {/* SECTION 1: COGNITION */}
            <CategorySection title="COGNITION">
@@ -177,9 +177,9 @@ const HomeScreen: React.FC<Props> = ({ onSelectMode, onNavigateWithPrompt }) => 
 };
 
 const CategorySection: React.FC<{ title: string, children: React.ReactNode }> = ({ title, children }) => (
-  <div className="space-y-4">
-     <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-2 border-l-2 border-gray-800">{title}</h3>
-     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div className="space-y-3 md:space-y-4">
+     <h3 className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-widest pl-2 border-l-2 border-gray-800">{title}</h3>
+     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {children}
      </div>
   </div>
@@ -211,16 +211,16 @@ const ModeCard: React.FC<CardProps> = ({ title, icon, desc, color, onClick }) =>
     <button 
       onClick={onClick}
       className={`
-        flex flex-col p-4 h-32 justify-between
+        flex flex-col p-3 md:p-4 h-28 md:h-32 justify-between
         bg-nexus-panel/50 backdrop-blur-sm border rounded-xl
         transition-all duration-300 hover:bg-nexus-panel hover:-translate-y-1
         ${colors[color]}
       `}
     >
-      <div className="self-start p-2 bg-white/5 rounded-lg">{icon}</div>
+      <div className="self-start p-1.5 md:p-2 bg-white/5 rounded-lg transform scale-90 md:scale-100 origin-top-left">{icon}</div>
       <div className="text-left">
-         <div className="font-bold text-white text-sm">{title}</div>
-         <div className="text-[10px] text-gray-500 font-mono uppercase">{desc}</div>
+         <div className="font-bold text-white text-xs md:text-sm">{title}</div>
+         <div className="text-[9px] md:text-[10px] text-gray-500 font-mono uppercase leading-tight">{desc}</div>
       </div>
     </button>
   );

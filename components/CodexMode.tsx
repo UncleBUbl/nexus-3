@@ -99,7 +99,7 @@ const CodexMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
           {/* Upload Box */}
           <div 
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-white/20 hover:border-nexus-crimson rounded-xl p-6 flex flex-col items-center justify-center space-y-4 cursor-pointer transition-all hover:bg-white/5 group h-48 lg:h-auto lg:flex-1 min-h-[12rem]"
+            className="border-2 border-dashed border-white/20 hover:border-nexus-crimson rounded-xl p-6 flex flex-col items-center justify-center space-y-4 cursor-pointer transition-all hover:bg-white/5 group h-32 lg:h-auto lg:flex-1 min-h-[8rem]"
           >
             <input 
               type="file" 
@@ -108,11 +108,11 @@ const CodexMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
               onChange={handleFileUpload}
             />
             <div className="p-4 bg-nexus-crimson/10 rounded-full text-nexus-crimson group-hover:scale-110 transition-transform">
-              {ingesting ? <Loader2 className="animate-spin" size={32} /> : <Upload size={32} />}
+              {ingesting ? <Loader2 className="animate-spin" size={24} /> : <Upload size={24} />}
             </div>
             <div className="text-center">
               <span className="text-white font-bold block text-sm">INGEST DATA</span>
-              <span className="text-gray-500 text-xs font-mono">ALL FORMATS ACCEPTED</span>
+              <span className="text-gray-500 text-[10px] font-mono">ALL FORMATS ACCEPTED</span>
             </div>
           </div>
 
@@ -124,7 +124,7 @@ const CodexMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
              </div>
              
              {files.length === 0 ? (
-               <div className="text-center text-gray-600 text-xs font-mono mt-10">
+               <div className="text-center text-gray-600 text-xs font-mono mt-4 lg:mt-10">
                  NO DATA STREAMS FOUND
                </div>
              ) : (
@@ -159,14 +159,14 @@ const CodexMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
            <div className="flex border-b border-white/10 bg-black/50">
              <button
                 onClick={() => setActiveTab('chat')}
-                className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${activeTab === 'chat' ? 'text-nexus-crimson bg-nexus-crimson/5 border-b-2 border-nexus-crimson' : 'text-gray-500 hover:text-white'}`}
+                className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 text-xs md:text-sm font-bold uppercase tracking-wider transition-colors ${activeTab === 'chat' ? 'text-nexus-crimson bg-nexus-crimson/5 border-b-2 border-nexus-crimson' : 'text-gray-500 hover:text-white'}`}
              >
                 <MessageSquare size={16} />
                 <span>Neural Chat</span>
              </button>
              <button
                 onClick={() => setActiveTab('editor')}
-                className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 text-sm font-bold uppercase tracking-wider transition-colors ${activeTab === 'editor' ? 'text-nexus-crimson bg-nexus-crimson/5 border-b-2 border-nexus-crimson' : 'text-gray-500 hover:text-white'}`}
+                className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 text-xs md:text-sm font-bold uppercase tracking-wider transition-colors ${activeTab === 'editor' ? 'text-nexus-crimson bg-nexus-crimson/5 border-b-2 border-nexus-crimson' : 'text-gray-500 hover:text-white'}`}
              >
                 <Code size={16} />
                 <span>Code Editor</span>
@@ -177,11 +177,11 @@ const CodexMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
            {activeTab === 'chat' && (
              <>
                {/* Terminal Output */}
-               <div className="flex-1 p-6 overflow-y-auto space-y-6 scrollbar-thin scrollbar-thumb-gray-800">
+               <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 scrollbar-thin scrollbar-thumb-gray-800">
                   {history.length === 0 ? (
                      <div className="h-full flex flex-col items-center justify-center text-gray-600 opacity-50 space-y-4">
                         <Database size={64} strokeWidth={1} />
-                        <p className="font-mono text-sm tracking-widest text-center">AWAITING QUERY INPUT...</p>
+                        <p className="font-mono text-xs md:text-sm tracking-widest text-center">AWAITING QUERY INPUT...</p>
                      </div>
                   ) : (
                      history.map((msg, i) => (

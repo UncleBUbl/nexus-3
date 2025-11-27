@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { startVideoGeneration, pollVideoGeneration } from '../services/geminiService';
 
@@ -22,11 +23,12 @@ export const useForge = () => {
 
     try {
       // 1. Start Operation
-      const operation = await startVideoGeneration(prompt, aspectRatio);
-      const opName = (operation as any).name as string;
+      // We must keep the full operation object to pass back to the SDK for polling
+      let currentOperation = await startVideoGeneration(prompt, aspectRatio);
+      
+      const opName = (currentOperation as any).name;
       console.log("Veo Operation Started:", opName);
 
-      // 2. Start Polling Loop
       if (!opName) throw new Error("Failed to start generation.");
       
       // Simulate progress for UX while waiting
@@ -37,18 +39,23 @@ export const useForge = () => {
 
       const checkStatus = async () => {
         try {
-          const status = await pollVideoGeneration(opName);
-          console.log("Veo Status:", status.done ? "Done" : "Processing");
+          // Pass the FULL operation object, not just the name
+          const updatedOp = await pollVideoGeneration(currentOperation);
+          
+          // CRITICAL: Update the local reference so the next poll uses the latest state
+          currentOperation = updatedOp;
+          
+          console.log("Veo Status:", updatedOp.done ? "Done" : "Processing");
 
-          if (status.done) {
+          if (updatedOp.done) {
             clearInterval(simInterval);
             setProgress(100);
             
-            if (status.error) {
-              throw new Error((status.error as any).message as string || "Generation failed.");
+            if (updatedOp.error) {
+              throw new Error((updatedOp.error as any).message || "Generation failed.");
             }
 
-            const uri = status.response?.generatedVideos?.[0]?.video?.uri;
+            const uri = updatedOp.response?.generatedVideos?.[0]?.video?.uri;
             if (uri) {
                // Append API key for access
                const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;

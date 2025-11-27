@@ -185,7 +185,17 @@ export const generateAgentResult = async (agent: Agent, originalGoal: string): P
     return response.text || "Task Complete.";
 }
 
-export const synthesizeSwarmResults = async (goal: string, agents: Agent[]): Promise<string> => {
+const debriefSchema: Schema = {
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING, description: "A cool, professional title for the report (e.g. 'PROJECT ALPHA STATUS')" },
+    persona: { type: Type.STRING, description: "The persona generating this report (e.g. 'Chief Strategist', 'Travel Concierge')" },
+    content: { type: Type.STRING, description: "The markdown report content" }
+  },
+  required: ["title", "persona", "content"]
+};
+
+export const synthesizeSwarmResults = async (goal: string, agents: Agent[]): Promise<any> => {
   const ai = getClient();
   
   const agentOutputs = agents.map(a => `[AGENT: ${a.name} (${a.role})]:\n${a.result || "No Output"}`).join('\n\n');
@@ -204,10 +214,15 @@ export const synthesizeSwarmResults = async (goal: string, agents: Agent[]): Pro
       - Merge the findings into a unified solution or plan.
       - Use professional, futuristic formatting (headers, bullet points).
       - Keep it concise but comprehensive.
-    `
+    `,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: debriefSchema
+    }
   });
 
-  return response.text || "Mission Synthesis Failed.";
+  if (!response.text) throw new Error("Synthesis failed");
+  return JSON.parse(response.text);
 };
 
 export const querySwarmMemory = async (
@@ -316,6 +331,7 @@ export const startVideoGeneration = async (prompt: string, aspectRatio: '16:9' |
 
 export const pollVideoGeneration = async (operation: any) => {
   const ai = getClient();
+  // Ensure we pass the operation object wrapper as required by SDK
   const updatedOp = await ai.operations.getVideosOperation({ operation: operation });
   return updatedOp;
 };

@@ -124,7 +124,7 @@ const DependencyGraphView: React.FC<{ agents: Agent[], onSelect: (id: string) =>
 
    // SVG Dimensions
    const LEVEL_HEIGHT = 120;
-   const width = 800;
+   const width = Math.max(800, agents.length * 100);
    const height = Math.max(400, (maxLevel + 1) * LEVEL_HEIGHT + 100);
    
    // Calculate Node Positions
@@ -158,7 +158,7 @@ const DependencyGraphView: React.FC<{ agents: Agent[], onSelect: (id: string) =>
 
    return (
       <div className="bg-nexus-panel border border-white/10 rounded-xl overflow-x-auto relative min-h-[400px]">
-         <svg width={width} height={height} className="mx-auto">
+         <svg width={width} height={height} className="mx-auto min-w-[800px]">
             {links.map((link, i) => (
                <path 
                   key={i} 
@@ -243,14 +243,14 @@ const AgentMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
         <div className="space-y-2">
           <div className="flex items-center space-x-4">
             <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-full transition-colors text-nexus-blue"><ArrowLeft size={24} /></button>
-            <div className="flex items-center space-x-3"><Workflow className="text-nexus-blue" size={28} /><h2 className="text-2xl md:text-3xl font-bold tracking-wider text-nexus-blue">THE SWARM</h2></div>
+            <div className="flex items-center space-x-2 md:space-x-3"><Workflow className="text-nexus-blue" size={24} /><h2 className="text-xl md:text-3xl font-bold tracking-wider text-nexus-blue">THE SWARM</h2></div>
           </div>
-          <p className="text-gray-400 text-xs md:text-sm font-mono tracking-wide ml-14">Non-linear asynchronous task execution</p>
+          <p className="text-gray-400 text-xs md:text-sm font-mono tracking-wide ml-12 md:ml-14">Non-linear asynchronous task execution</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 self-start md:self-end">
            {agents.length > 0 && <button onClick={handleShare} className="p-2 text-nexus-blue hover:bg-nexus-blue/20 rounded-lg"><Share2 size={20} /></button>}
            <button onClick={() => setShowHistory(true)} className="flex items-center space-x-2 px-3 py-2 bg-nexus-panel border border-white/10 rounded-md hover:bg-white/5 transition-all text-gray-400 hover:text-white"><History size={16} /><span className="text-xs font-mono uppercase">History</span>{missionHistory.length > 0 && <span className="bg-nexus-blue text-black text-[10px] font-bold px-1.5 rounded-full">{missionHistory.length}</span>}</button>
-           {agents.length > 0 && <div className="flex bg-nexus-panel rounded-lg p-1 border border-white/10"><button onClick={() => setViewMode('kanban')} className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-all ${viewMode === 'kanban' ? 'bg-nexus-blue text-black font-bold shadow-neon-blue' : 'text-gray-400 hover:text-white'}`}><Layout size={16} /><span className="text-xs font-mono uppercase">Kanban</span></button><button onClick={() => setViewMode('graph')} className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-all ${viewMode === 'graph' ? 'bg-nexus-blue text-black font-bold shadow-neon-blue' : 'text-gray-400 hover:text-white'}`}><Network size={16} /><span className="text-xs font-mono uppercase">Graph</span></button></div>}
+           {agents.length > 0 && <div className="flex bg-nexus-panel rounded-lg p-1 border border-white/10"><button onClick={() => setViewMode('kanban')} className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-all ${viewMode === 'kanban' ? 'bg-nexus-blue text-black font-bold shadow-neon-blue' : 'text-gray-400 hover:text-white'}`}><Layout size={16} /><span className="text-xs font-mono uppercase hidden sm:inline">Kanban</span></button><button onClick={() => setViewMode('graph')} className={`flex items-center space-x-2 px-3 py-2 rounded-md transition-all ${viewMode === 'graph' ? 'bg-nexus-blue text-black font-bold shadow-neon-blue' : 'text-gray-400 hover:text-white'}`}><Network size={16} /><span className="text-xs font-mono uppercase hidden sm:inline">Graph</span></button></div>}
         </div>
       </div>
 
@@ -300,7 +300,7 @@ const AgentMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
 
           {(isSynthesizing || finalReport) && (
              <div className="space-y-6 animate-in slide-in-from-bottom-4">
-                <div className="bg-nexus-panel border-2 border-nexus-blue/50 rounded-xl p-6 min-h-[200px]">
+                <div className="bg-nexus-panel border-2 border-nexus-blue/50 rounded-xl p-4 md:p-6 min-h-[200px]">
                    <h3 className="text-nexus-blue font-bold mb-4 flex items-center gap-2"><FileText /> MISSION DEBRIEF</h3>
                    <div className="p-4 bg-black/50 rounded-lg">
                       {isSynthesizing ? <Loader2 className="animate-spin text-nexus-blue" /> : typingComplete ? <RichTextRenderer text={finalReport} /> : <TypewriterEffect text={finalReport} onComplete={() => setTypingComplete(true)} />}
@@ -309,7 +309,7 @@ const AgentMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
 
                 {/* Swarm Memory Access / Chat - Visible once report exists */}
                 {finalReport && (
-                   <div className="bg-nexus-panel border border-white/10 rounded-xl p-6 space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                   <div className="bg-nexus-panel border border-white/10 rounded-xl p-4 md:p-6 space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                       <h3 className="text-gray-500 font-bold uppercase tracking-widest text-xs flex items-center gap-2">
                          <Database size={14} />
                          <span>Swarm Memory Access</span>
@@ -377,7 +377,7 @@ const AgentMode: React.FC<Props> = ({ onBack, initialPrompt }) => {
          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={() => setShowHistory(false)}>
             <div className="bg-nexus-panel border border-white/20 rounded-xl w-[95%] max-w-2xl shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-white tracking-wider flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-white tracking-wider flex items-center gap-2">
                      <History className="text-nexus-blue" />
                      MISSION ARCHIVES
                   </h3>
